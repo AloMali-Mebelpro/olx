@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  icon     String?
+  listings Listing[]
+}
+
+model Listing {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Int
+  currency    String   @default("USD")
+  location    String
+  imageUrl    String?
+  isPromoted  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+}
+
+enum AdPosition {
+  BANNER_TOP
+  SIDEBAR_LEFT
+  SIDEBAR_RIGHT
+  IN_FEED
+}
+
+model Ad {
+  id        String     @id @default(cuid())
+  title     String
+  imageUrl  String
+  linkUrl   String
+  position  AdPosition
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+}
