@@ -1,17 +1,31 @@
 import { Fragment } from "react";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import ListingCard from "@/components/ListingCard";
 import AdSlot from "@/components/AdSlot";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+const SORT_OPTIONS: Record<string, Prisma.ListingOrderByWithRelationInput[]> = {
+  new: [{ isPromoted: "desc" }, { createdAt: "desc" }],
+  price_asc: [{ isPromoted: "desc" }, { price: "asc" }],
+  price_desc: [{ isPromoted: "desc" }, { price: "desc" }],
+};
+
+const SORT_LABELS: Record<string, string> = {
+  new: "Сначала новые",
+  price_asc: "Сначала дешёвые",
+  price_desc: "Сначала дорогие",
+};
+
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; sort?: string }>;
 }) {
-  const { q, category } = await searchParams;
+  const { q, category, sort } = await searchParams;
+  const sortKey = sort && SORT_OPTIONS[sort] ? sort : "new";
 
   const [listings, categories] = await Promise.all([
     prisma.listing.findMany({
@@ -27,12 +41,28 @@ export default async function Home({
         ...(category ? { category: { slug: category } } : {}),
       },
       include: { category: true },
-      orderBy: [{ isPromoted: "desc" }, { createdAt: "desc" }],
+      orderBy: SORT_OPTIONS[sortKey],
     }),
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { listings: true } } },
+    }),
   ]);
 
   const IN_FEED_INTERVAL = 6;
+
+  const withParam = (params: Record<string, string | undefined>) => {
+    const usp = new URLSearchParams();
+    if (q) usp.set("q", q);
+    if (category) usp.set("category", category);
+    if (sort) usp.set("sort", sort);
+    for (const [key, value] of Object.entries(params)) {
+      if (value) usp.set(key, value);
+      else usp.delete(key);
+    }
+    const qs = usp.toString();
+    return qs ? `/?${qs}` : "/";
+  };
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[200px_1fr_200px]">
@@ -45,7 +75,7 @@ export default async function Home({
       <div className="flex flex-col gap-4">
         <nav className="flex flex-wrap gap-2">
           <Link
-            href="/"
+            href={withParam({ category: undefined })}
             className={`rounded-full border px-3 py-1 text-sm ${
               !category
                 ? "border-emerald-600 bg-emerald-600 text-white"
@@ -57,17 +87,38 @@ export default async function Home({
           {categories.map((c) => (
             <Link
               key={c.id}
-              href={`/?category=${c.slug}`}
+              href={withParam({ category: c.slug })}
               className={`rounded-full border px-3 py-1 text-sm ${
                 category === c.slug
                   ? "border-emerald-600 bg-emerald-600 text-white"
                   : "border-zinc-300 text-zinc-700 hover:border-emerald-500 dark:border-zinc-700 dark:text-zinc-300"
               }`}
             >
-              {c.icon} {c.name}
+              {c.icon} {c.name} ({c._count.listings})
             </Link>
           ))}
         </nav>
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm text-zinc-500">
+            Найдено объявлений: {listings.length}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(SORT_LABELS).map(([key, label]) => (
+              <Link
+                key={key}
+                href={withParam({ sort: key === "new" ? undefined : key })}
+                className={`rounded-full border px-3 py-1 text-xs ${
+                  sortKey === key
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-zinc-300 text-zinc-700 hover:border-emerald-500 dark:border-zinc-700 dark:text-zinc-300"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
 
         {listings.length === 0 ? (
           <p className="py-16 text-center text-zinc-500">

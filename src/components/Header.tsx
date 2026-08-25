@@ -33,6 +33,13 @@ export default function Header() {
         </form>
 
         <Link
+          href="/favorites"
+          className="whitespace-nowrap rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:border-amber-400 hover:text-amber-500 dark:border-zinc-700 dark:text-zinc-300"
+        >
+          ★ Избранное
+        </Link>
+
+        <Link
           href="/listing/new"
           className="whitespace-nowrap rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
         >

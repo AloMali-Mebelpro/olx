@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Category, Listing } from "@prisma/client";
+import FavoriteButton from "@/components/FavoriteButton";
 
 function formatPrice(price: number, currency: string) {
   return new Intl.NumberFormat("ru-RU").format(price) + " " + currency;
@@ -33,6 +34,9 @@ export default function ListingCard({
             TOP
           </span>
         )}
+        <div className="absolute right-2 top-2">
+          <FavoriteButton listingId={listing.id} size="sm" />
+        </div>
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3">
         <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
