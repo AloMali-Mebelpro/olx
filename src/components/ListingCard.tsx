@@ -1,16 +1,22 @@
+"use client";
+
 import Link from "next/link";
 import type { Category, Listing } from "@prisma/client";
 import FavoriteButton from "@/components/FavoriteButton";
-
-function formatPrice(price: number, currency: string) {
-  return new Intl.NumberFormat("ru-RU").format(price) + " " + currency;
-}
+import { useLocale } from "@/lib/i18n/client";
+import { localeMeta } from "@/lib/i18n/config";
 
 export default function ListingCard({
   listing,
 }: {
   listing: Listing & { category: Category };
 }) {
+  const { locale, dict } = useLocale();
+  const price =
+    new Intl.NumberFormat(localeMeta[locale].intl).format(listing.price) +
+    " " +
+    listing.currency;
+
   return (
     <Link
       href={`/listing/${listing.id}`}
@@ -26,7 +32,7 @@ export default function ListingCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-zinc-400">
-            Нет фото
+            {dict.listingCard.noPhoto}
           </div>
         )}
         {listing.isPromoted && (
@@ -40,7 +46,7 @@ export default function ListingCard({
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3">
         <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
-          {formatPrice(listing.price, listing.currency)}
+          {price}
         </span>
         <span className="line-clamp-2 text-sm font-medium text-zinc-800 dark:text-zinc-100">
           {listing.title}

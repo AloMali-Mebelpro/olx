@@ -3,13 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import FavoriteButton from "@/components/FavoriteButton";
+import { useLocale } from "@/lib/i18n/client";
 
 export default function ListingActions({ listingId }: { listingId: string }) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+  const { dict } = useLocale();
 
   async function handleDelete() {
-    if (!confirm("Удалить это объявление? Это действие нельзя отменить.")) {
+    if (!confirm(dict.listingDetail.confirmDelete)) {
       return;
     }
     setDeleting(true);
@@ -21,7 +23,7 @@ export default function ListingActions({ listingId }: { listingId: string }) {
       router.refresh();
     } else {
       setDeleting(false);
-      alert("Не удалось удалить объявление");
+      alert(dict.listingDetail.deleteFailed);
     }
   }
 
@@ -34,7 +36,7 @@ export default function ListingActions({ listingId }: { listingId: string }) {
         disabled={deleting}
         className="rounded-full border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:hover:bg-red-950"
       >
-        {deleting ? "Удаление..." : "Удалить объявление"}
+        {deleting ? dict.listingDetail.deleting : dict.listingDetail.deleteListing}
       </button>
     </div>
   );

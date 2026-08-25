@@ -1,0 +1,268 @@
+import type { Locale } from "./config";
+
+export const dictionaries = {
+  prs: {
+    brand: "HinOi",
+    header: {
+      searchPlaceholder: "اعلان مورد نظر خود را جستجو کنید...",
+      searchButton: "جستجو",
+      favorites: "برگزیده‌ها",
+      newListing: "+ ثبت اعلان",
+    },
+    home: {
+      allCategories: "همه دسته‌بندی‌ها",
+      found: "تعداد اعلان‌ها:",
+      noListings: "هیچ اعلانی یافت نشد.",
+      sort: {
+        new: "جدیدترین",
+        price_asc: "ارزان‌ترین",
+        price_desc: "گران‌ترین",
+      },
+    },
+    ad: {
+      placeholder: "جای تبلیغات",
+      badge: "تبلیغ",
+    },
+    listingCard: {
+      noPhoto: "بدون عکس",
+    },
+    listingDetail: {
+      seller: "فروشنده",
+      privateSeller: "شخص حقیقی",
+      showPhone: "نمایش شماره تلفن",
+      deleteListing: "حذف اعلان",
+      deleting: "در حال حذف...",
+      confirmDelete: "این اعلان حذف شود؟ این عمل قابل بازگشت نیست.",
+      deleteFailed: "حذف اعلان ممکن نشد",
+    },
+    favoriteButton: {
+      add: "افزودن به برگزیده‌ها",
+      remove: "حذف از برگزیده‌ها",
+    },
+    favoritesPage: {
+      title: "برگزیده‌ها",
+      loading: "در حال بارگذاری...",
+      empty:
+        "شما هنوز هیچ اعلانی را به برگزیده‌ها اضافه نکرده‌اید. برای ذخیره اعلان روی ستاره کلیک کنید.",
+    },
+    newListing: {
+      title: "ثبت اعلان جدید",
+      titleField: "عنوان",
+      category: "دسته‌بندی",
+      price: "قیمت",
+      currency: "واحد پول",
+      location: "شهر / موقعیت",
+      imageUrl: "لینک عکس (URL)",
+      description: "توضیحات",
+      submit: "انتشار اعلان",
+      submitting: "در حال انتشار...",
+      genericError: "ثبت اعلان ممکن نشد",
+    },
+    admin: {
+      title: "مدیریت تبلیغات",
+      adTitle: "نام تبلیغ",
+      position: "موقعیت",
+      imageUrl: "لینک تصویر",
+      linkUrl: "لینک هنگام کلیک",
+      addAd: "افزودن تبلیغ",
+      currentAds: "تبلیغات فعلی",
+      loading: "در حال بارگذاری...",
+      empty: "هنوز هیچ تبلیغی اضافه نشده است.",
+      enable: "فعال کردن",
+      disable: "غیرفعال کردن",
+      delete: "حذف",
+      active: "فعال",
+      inactive: "غیرفعال",
+      genericError: "افزودن تبلیغ ممکن نشد",
+      confirmDelete: (title: string) => `تبلیغ «${title}» حذف شود؟`,
+      positions: {
+        BANNER_TOP: "بنر بالای صفحه",
+        SIDEBAR_LEFT: "ستون کناری چپ",
+        SIDEBAR_RIGHT: "ستون کناری راست",
+        IN_FEED: "داخل فهرست اعلان‌ها",
+      },
+    },
+    footer: {
+      copyright: "HinOi. یک پروژه آموزشی.",
+      adminLink: "مدیریت تبلیغات",
+    },
+  },
+  ru: {
+    brand: "HinOi",
+    header: {
+      searchPlaceholder: "Найти объявление...",
+      searchButton: "Искать",
+      favorites: "Избранное",
+      newListing: "+ Разместить объявление",
+    },
+    home: {
+      allCategories: "Все категории",
+      found: "Найдено объявлений:",
+      noListings: "Объявлений не найдено.",
+      sort: {
+        new: "Сначала новые",
+        price_asc: "Сначала дешёвые",
+        price_desc: "Сначала дорогие",
+      },
+    },
+    ad: {
+      placeholder: "Место для рекламы",
+      badge: "Реклама",
+    },
+    listingCard: {
+      noPhoto: "Нет фото",
+    },
+    listingDetail: {
+      seller: "Продавец",
+      privateSeller: "Частное лицо",
+      showPhone: "Показать телефон",
+      deleteListing: "Удалить объявление",
+      deleting: "Удаление...",
+      confirmDelete: "Удалить это объявление? Это действие нельзя отменить.",
+      deleteFailed: "Не удалось удалить объявление",
+    },
+    favoriteButton: {
+      add: "Добавить в избранное",
+      remove: "Убрать из избранного",
+    },
+    favoritesPage: {
+      title: "Избранное",
+      loading: "Загрузка...",
+      empty:
+        "Вы ещё не добавили ни одного объявления в избранное. Нажмите на звёздочку на карточке объявления, чтобы сохранить его здесь.",
+    },
+    newListing: {
+      title: "Разместить объявление",
+      titleField: "Заголовок",
+      category: "Категория",
+      price: "Цена",
+      currency: "Валюта",
+      location: "Город / местоположение",
+      imageUrl: "Ссылка на фото (URL)",
+      description: "Описание",
+      submit: "Опубликовать объявление",
+      submitting: "Публикация...",
+      genericError: "Не удалось создать объявление",
+    },
+    admin: {
+      title: "Управление рекламой",
+      adTitle: "Название рекламы",
+      position: "Позиция",
+      imageUrl: "URL изображения",
+      linkUrl: "Ссылка при клике",
+      addAd: "Добавить рекламу",
+      currentAds: "Текущие объявления рекламы",
+      loading: "Загрузка...",
+      empty: "Реклама ещё не добавлена.",
+      enable: "Включить",
+      disable: "Выключить",
+      delete: "Удалить",
+      active: "активна",
+      inactive: "выключена",
+      genericError: "Не удалось добавить рекламу",
+      confirmDelete: (title: string) => `Удалить рекламу "${title}"?`,
+      positions: {
+        BANNER_TOP: "Баннер сверху",
+        SIDEBAR_LEFT: "Левый сайдбар",
+        SIDEBAR_RIGHT: "Правый сайдбар",
+        IN_FEED: "В ленте объявлений",
+      },
+    },
+    footer: {
+      copyright: "HinOi. Учебный проект.",
+      adminLink: "Управление рекламой",
+    },
+  },
+  en: {
+    brand: "HinOi",
+    header: {
+      searchPlaceholder: "Search listings...",
+      searchButton: "Search",
+      favorites: "Favorites",
+      newListing: "+ Post a listing",
+    },
+    home: {
+      allCategories: "All categories",
+      found: "Listings found:",
+      noListings: "No listings found.",
+      sort: {
+        new: "Newest first",
+        price_asc: "Price: low to high",
+        price_desc: "Price: high to low",
+      },
+    },
+    ad: {
+      placeholder: "Ad space",
+      badge: "Ad",
+    },
+    listingCard: {
+      noPhoto: "No photo",
+    },
+    listingDetail: {
+      seller: "Seller",
+      privateSeller: "Private seller",
+      showPhone: "Show phone number",
+      deleteListing: "Delete listing",
+      deleting: "Deleting...",
+      confirmDelete: "Delete this listing? This cannot be undone.",
+      deleteFailed: "Failed to delete the listing",
+    },
+    favoriteButton: {
+      add: "Add to favorites",
+      remove: "Remove from favorites",
+    },
+    favoritesPage: {
+      title: "Favorites",
+      loading: "Loading...",
+      empty:
+        "You haven't added any listings to favorites yet. Click the star on a listing card to save it here.",
+    },
+    newListing: {
+      title: "Post a new listing",
+      titleField: "Title",
+      category: "Category",
+      price: "Price",
+      currency: "Currency",
+      location: "City / location",
+      imageUrl: "Photo URL",
+      description: "Description",
+      submit: "Publish listing",
+      submitting: "Publishing...",
+      genericError: "Failed to create the listing",
+    },
+    admin: {
+      title: "Ad management",
+      adTitle: "Ad title",
+      position: "Position",
+      imageUrl: "Image URL",
+      linkUrl: "Click-through link",
+      addAd: "Add ad",
+      currentAds: "Current ads",
+      loading: "Loading...",
+      empty: "No ads added yet.",
+      enable: "Enable",
+      disable: "Disable",
+      delete: "Delete",
+      active: "active",
+      inactive: "disabled",
+      genericError: "Failed to add the ad",
+      confirmDelete: (title: string) => `Delete ad "${title}"?`,
+      positions: {
+        BANNER_TOP: "Top banner",
+        SIDEBAR_LEFT: "Left sidebar",
+        SIDEBAR_RIGHT: "Right sidebar",
+        IN_FEED: "In listings feed",
+      },
+    },
+    footer: {
+      copyright: "HinOi. A learning project.",
+      adminLink: "Ad management",
+    },
+  },
+} satisfies Record<Locale, unknown>;
+
+export type Dictionary = (typeof dictionaries)["ru"];
+
+export function getDictionary(locale: Locale): Dictionary {
+  return dictionaries[locale] as Dictionary;
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { isFavorite, toggleFavorite } from "@/lib/favorites";
+import { useLocale } from "@/lib/i18n/client";
 
 export default function FavoriteButton({
   listingId,
@@ -11,6 +12,7 @@ export default function FavoriteButton({
   size?: "sm" | "md";
 }) {
   const [active, setActive] = useState(false);
+  const { dict } = useLocale();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -22,7 +24,7 @@ export default function FavoriteButton({
   return (
     <button
       type="button"
-      aria-label={active ? "Убрать из избранного" : "Добавить в избранное"}
+      aria-label={active ? dict.favoriteButton.remove : dict.favoriteButton.add}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();

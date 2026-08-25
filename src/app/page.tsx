@@ -4,6 +4,7 @@ import type { Prisma } from "@prisma/client";
 import ListingCard from "@/components/ListingCard";
 import AdSlot from "@/components/AdSlot";
 import Link from "next/link";
+import { getServerDictionary } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +14,6 @@ const SORT_OPTIONS: Record<string, Prisma.ListingOrderByWithRelationInput[]> = {
   price_desc: [{ isPromoted: "desc" }, { price: "desc" }],
 };
 
-const SORT_LABELS: Record<string, string> = {
-  new: "Сначала новые",
-  price_asc: "Сначала дешёвые",
-  price_desc: "Сначала дорогие",
-};
-
 export default async function Home({
   searchParams,
 }: {
@@ -26,6 +21,8 @@ export default async function Home({
 }) {
   const { q, category, sort } = await searchParams;
   const sortKey = sort && SORT_OPTIONS[sort] ? sort : "new";
+  const { dict } = await getServerDictionary();
+  const SORT_LABELS: Record<string, string> = dict.home.sort;
 
   const [listings, categories] = await Promise.all([
     prisma.listing.findMany({
@@ -82,7 +79,7 @@ export default async function Home({
                 : "border-zinc-300 text-zinc-700 hover:border-emerald-500 dark:border-zinc-700 dark:text-zinc-300"
             }`}
           >
-            Все категории
+            {dict.home.allCategories}
           </Link>
           {categories.map((c) => (
             <Link
@@ -101,7 +98,7 @@ export default async function Home({
 
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-zinc-500">
-            Найдено объявлений: {listings.length}
+            {dict.home.found} {listings.length}
           </p>
           <div className="flex flex-wrap gap-2">
             {Object.entries(SORT_LABELS).map(([key, label]) => (
@@ -122,7 +119,7 @@ export default async function Home({
 
         {listings.length === 0 ? (
           <p className="py-16 text-center text-zinc-500">
-            Объявлений не найдено.
+            {dict.home.noListings}
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">

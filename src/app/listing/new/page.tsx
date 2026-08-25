@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/lib/i18n/client";
 
 type Category = { id: string; name: string; icon: string | null };
 
 export default function NewListingPage() {
   const router = useRouter();
+  const { dict } = useLocale();
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -47,7 +49,7 @@ export default function NewListingPage() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error || "Не удалось создать объявление");
+      setError(data.error || dict.newListing.genericError);
       return;
     }
 
@@ -58,7 +60,7 @@ export default function NewListingPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="mb-4 text-2xl font-bold">Разместить объявление</h1>
+      <h1 className="mb-4 text-2xl font-bold">{dict.newListing.title}</h1>
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
@@ -70,7 +72,7 @@ export default function NewListingPage() {
         )}
 
         <label className="flex flex-col gap-1 text-sm">
-          Заголовок
+          {dict.newListing.titleField}
           <input
             required
             className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
@@ -80,7 +82,7 @@ export default function NewListingPage() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
-          Категория
+          {dict.newListing.category}
           <select
             required
             className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
@@ -97,7 +99,7 @@ export default function NewListingPage() {
 
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1 text-sm">
-            Цена
+            {dict.newListing.price}
             <input
               required
               type="number"
@@ -108,7 +110,7 @@ export default function NewListingPage() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Валюта
+            {dict.newListing.currency}
             <select
               className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
               value={form.currency}
@@ -117,12 +119,13 @@ export default function NewListingPage() {
               <option value="USD">USD</option>
               <option value="EUR">EUR</option>
               <option value="UAH">UAH</option>
+              <option value="AFN">AFN</option>
             </select>
           </label>
         </div>
 
         <label className="flex flex-col gap-1 text-sm">
-          Город / местоположение
+          {dict.newListing.location}
           <input
             required
             className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
@@ -132,7 +135,7 @@ export default function NewListingPage() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
-          Ссылка на фото (URL)
+          {dict.newListing.imageUrl}
           <input
             className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
             placeholder="https://..."
@@ -142,7 +145,7 @@ export default function NewListingPage() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
-          Описание
+          {dict.newListing.description}
           <textarea
             required
             rows={5}
@@ -159,7 +162,7 @@ export default function NewListingPage() {
           disabled={submitting}
           className="rounded-full bg-emerald-600 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
         >
-          {submitting ? "Публикация..." : "Опубликовать объявление"}
+          {submitting ? dict.newListing.submitting : dict.newListing.submit}
         </button>
       </form>
     </div>

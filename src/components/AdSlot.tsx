@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { AdPosition } from "@/lib/types";
+import { getServerDictionary } from "@/lib/i18n/server";
 
 async function getAds(position: AdPosition) {
   return prisma.ad.findMany({
@@ -22,14 +23,17 @@ export default async function AdSlot({
   position: AdPosition;
   limit?: number;
 }) {
-  const ads = (await getAds(position)).slice(0, limit);
+  const [ads, { dict }] = await Promise.all([
+    getAds(position).then((all) => all.slice(0, limit)),
+    getServerDictionary(),
+  ]);
 
   if (ads.length === 0) {
     return (
       <div
         className={`${sizeByPosition[position]} flex items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 text-xs font-medium uppercase tracking-wide text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-600`}
       >
-        Место для рекламы
+        {dict.ad.placeholder}
       </div>
     );
   }
@@ -51,7 +55,7 @@ export default async function AdSlot({
             className="h-full w-full object-cover transition-transform group-hover:scale-105"
           />
           <span className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">
-            Реклама
+            {dict.ad.badge}
           </span>
         </a>
       ))}
