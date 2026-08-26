@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "@/lib/i18n/client";
 
 type Ad = {
   id: string;
@@ -11,14 +12,15 @@ type Ad = {
   isActive: boolean;
 };
 
-const POSITIONS: { value: string; label: string }[] = [
-  { value: "BANNER_TOP", label: "Баннер сверху" },
-  { value: "SIDEBAR_LEFT", label: "Левый сайдбар" },
-  { value: "SIDEBAR_RIGHT", label: "Правый сайдбар" },
-  { value: "IN_FEED", label: "В ленте объявлений" },
-];
+const POSITION_VALUES = [
+  "BANNER_TOP",
+  "SIDEBAR_LEFT",
+  "SIDEBAR_RIGHT",
+  "IN_FEED",
+] as const;
 
 export default function AdminAdsPage() {
+  const { dict } = useLocale();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export default function AdminAdsPage() {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error || "Не удалось добавить рекламу");
+      setError(data.error || dict.admin.genericError);
       return;
     }
     setForm({ title: "", imageUrl: "", linkUrl: "", position: form.position });
@@ -68,14 +70,14 @@ export default function AdminAdsPage() {
   }
 
   async function remove(ad: Ad) {
-    if (!confirm(`Удалить рекламу "${ad.title}"?`)) return;
+    if (!confirm(dict.admin.confirmDelete(ad.title))) return;
     await fetch(`/api/ads/${ad.id}`, { method: "DELETE" });
     load();
   }
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-4 text-2xl font-bold">Управление рекламой</h1>
+      <h1 className="mb-4 text-2xl font-bold">{dict.admin.title}</h1>
 
       <form
         onSubmit={handleSubmit}
@@ -87,7 +89,7 @@ export default function AdminAdsPage() {
           </p>
         )}
         <label className="flex flex-col gap-1 text-sm">
-          Название рекламы
+          {dict.admin.adTitle}
           <input
             required
             className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
@@ -96,21 +98,21 @@ export default function AdminAdsPage() {
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          Позиция
+          {dict.admin.position}
           <select
             className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
             value={form.position}
             onChange={(e) => setForm({ ...form, position: e.target.value })}
           >
-            {POSITIONS.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
+            {POSITION_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {dict.admin.positions[value]}
               </option>
             ))}
           </select>
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          URL изображения
+          {dict.admin.imageUrl}
           <input
             required
             placeholder="https://..."
@@ -120,7 +122,7 @@ export default function AdminAdsPage() {
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          Ссылка при клике
+          {dict.admin.linkUrl}
           <input
             required
             placeholder="https://..."
@@ -133,15 +135,15 @@ export default function AdminAdsPage() {
           type="submit"
           className="rounded-full bg-emerald-600 py-2 font-semibold text-white hover:bg-emerald-700"
         >
-          Добавить рекламу
+          {dict.admin.addAd}
         </button>
       </form>
 
-      <h2 className="mb-3 text-lg font-semibold">Текущие объявления рекламы</h2>
+      <h2 className="mb-3 text-lg font-semibold">{dict.admin.currentAds}</h2>
       {loading ? (
-        <p className="text-zinc-500">Загрузка...</p>
+        <p className="text-zinc-500">{dict.admin.loading}</p>
       ) : ads.length === 0 ? (
-        <p className="text-zinc-500">Реклама ещё не добавлена.</p>
+        <p className="text-zinc-500">{dict.admin.empty}</p>
       ) : (
         <div className="flex flex-col gap-3">
           {ads.map((ad) => (
@@ -158,21 +160,23 @@ export default function AdminAdsPage() {
               <div className="flex-1">
                 <p className="font-medium">{ad.title}</p>
                 <p className="text-xs text-zinc-500">
-                  {POSITIONS.find((p) => p.value === ad.position)?.label} ·{" "}
-                  {ad.isActive ? "активна" : "выключена"}
+                  {dict.admin.positions[
+                    ad.position as (typeof POSITION_VALUES)[number]
+                  ] ?? ad.position}{" "}
+                  · {ad.isActive ? dict.admin.active : dict.admin.inactive}
                 </p>
               </div>
               <button
                 onClick={() => toggleActive(ad)}
                 className="rounded-full border border-zinc-300 px-3 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
               >
-                {ad.isActive ? "Выключить" : "Включить"}
+                {ad.isActive ? dict.admin.disable : dict.admin.enable}
               </button>
               <button
                 onClick={() => remove(ad)}
                 className="rounded-full border border-red-300 px-3 py-1 text-xs text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
               >
-                Удалить
+                {dict.admin.delete}
               </button>
             </div>
           ))}

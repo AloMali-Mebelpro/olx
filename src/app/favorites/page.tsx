@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import ListingCard from "@/components/ListingCard";
 import { getFavorites } from "@/lib/favorites";
+import { useLocale } from "@/lib/i18n/client";
 import type { Category, Listing } from "@prisma/client";
 
 type ListingWithCategory = Listing & { category: Category };
 
 export default function FavoritesPage() {
+  const { dict } = useLocale();
   const [listings, setListings] = useState<ListingWithCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,13 +37,12 @@ export default function FavoritesPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold">Избранное</h1>
+      <h1 className="mb-4 text-2xl font-bold">{dict.favoritesPage.title}</h1>
       {loading ? (
-        <p className="text-zinc-500">Загрузка...</p>
+        <p className="text-zinc-500">{dict.favoritesPage.loading}</p>
       ) : listings.length === 0 ? (
         <p className="py-16 text-center text-zinc-500">
-          Вы ещё не добавили ни одного объявления в избранное. Нажмите на
-          звёздочку на карточке объявления, чтобы сохранить его здесь.
+          {dict.favoritesPage.empty}
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">

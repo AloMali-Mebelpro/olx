@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import ListingCard from "@/components/ListingCard";
 import AdSlot from "@/components/AdSlot";
+import NearMeButton from "@/components/NearMeButton";
 import Link from "next/link";
+import { getServerDictionary } from "@/lib/i18n/server";
+import { matchScore, distanceKm } from "@/lib/search";
 
 export const dynamic = "force-dynamic";
 
@@ -13,33 +16,35 @@ const SORT_OPTIONS: Record<string, Prisma.ListingOrderByWithRelationInput[]> = {
   price_desc: [{ isPromoted: "desc" }, { price: "desc" }],
 };
 
-const SORT_LABELS: Record<string, string> = {
-  new: "Сначала новые",
-  price_asc: "Сначала дешёвые",
-  price_desc: "Сначала дорогие",
-};
-
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; sort?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    sort?: string;
+    lat?: string;
+    lng?: string;
+  }>;
 }) {
-  const { q, category, sort } = await searchParams;
+  const { q, category, sort, lat: latStr, lng: lngStr } = await searchParams;
   const sortKey = sort && SORT_OPTIONS[sort] ? sort : "new";
+  const { dict } = await getServerDictionary();
+  const SORT_LABELS: Record<string, string> = dict.home.sort;
 
-  const [listings, categories] = await Promise.all([
+  const lat = latStr ? Number(latStr) : null;
+  const lng = lngStr ? Number(lngStr) : null;
+  const hasGeo = lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng);
+
+  // Expire promotions whose paid period has ended.
+  await prisma.listing.updateMany({
+    where: { isPromoted: true, promotedUntil: { lt: new Date() } },
+    data: { isPromoted: false },
+  });
+
+  const [listingsRaw, categories] = await Promise.all([
     prisma.listing.findMany({
-      where: {
-        ...(q
-          ? {
-              OR: [
-                { title: { contains: q } },
-                { description: { contains: q } },
-              ],
-            }
-          : {}),
-        ...(category ? { category: { slug: category } } : {}),
-      },
+      where: category ? { category: { slug: category } } : {},
       include: { category: true },
       orderBy: SORT_OPTIONS[sortKey],
     }),
@@ -49,6 +54,35 @@ export default async function Home({
     }),
   ]);
 
+  let listings = listingsRaw;
+
+  if (q) {
+    listings = listingsRaw
+      .map((listing) => ({
+        listing,
+        score: matchScore(q, listing.title, listing.description, listing.location),
+      }))
+      .filter((r) => r.score > 0)
+      .sort((a, b) => {
+        if (a.listing.isPromoted !== b.listing.isPromoted) {
+          return a.listing.isPromoted ? -1 : 1;
+        }
+        return b.score - a.score;
+      })
+      .map((r) => r.listing);
+  }
+
+  if (hasGeo && lat != null && lng != null) {
+    listings = [...listings].sort((a, b) => {
+      if (a.isPromoted !== b.isPromoted) return a.isPromoted ? -1 : 1;
+      if (a.lat == null || a.lng == null) return 1;
+      if (b.lat == null || b.lng == null) return -1;
+      return (
+        distanceKm(lat, lng, a.lat, a.lng) - distanceKm(lat, lng, b.lat, b.lng)
+      );
+    });
+  }
+
   const IN_FEED_INTERVAL = 6;
 
   const withParam = (params: Record<string, string | undefined>) => {
@@ -56,6 +90,8 @@ export default async function Home({
     if (q) usp.set("q", q);
     if (category) usp.set("category", category);
     if (sort) usp.set("sort", sort);
+    if (latStr) usp.set("lat", latStr);
+    if (lngStr) usp.set("lng", lngStr);
     for (const [key, value] of Object.entries(params)) {
       if (value) usp.set(key, value);
       else usp.delete(key);
@@ -82,7 +118,7 @@ export default async function Home({
                 : "border-zinc-300 text-zinc-700 hover:border-emerald-500 dark:border-zinc-700 dark:text-zinc-300"
             }`}
           >
-            Все категории
+            {dict.home.allCategories}
           </Link>
           {categories.map((c) => (
             <Link
@@ -101,15 +137,15 @@ export default async function Home({
 
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-zinc-500">
-            Найдено объявлений: {listings.length}
+            {dict.home.found} {listings.length}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {Object.entries(SORT_LABELS).map(([key, label]) => (
               <Link
                 key={key}
                 href={withParam({ sort: key === "new" ? undefined : key })}
                 className={`rounded-full border px-3 py-1 text-xs ${
-                  sortKey === key
+                  sortKey === key && !hasGeo
                     ? "border-emerald-600 bg-emerald-600 text-white"
                     : "border-zinc-300 text-zinc-700 hover:border-emerald-500 dark:border-zinc-700 dark:text-zinc-300"
                 }`}
@@ -117,12 +153,13 @@ export default async function Home({
                 {label}
               </Link>
             ))}
+            <NearMeButton active={hasGeo} />
           </div>
         </div>
 
         {listings.length === 0 ? (
           <p className="py-16 text-center text-zinc-500">
-            Объявлений не найдено.
+            {dict.home.noListings}
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">

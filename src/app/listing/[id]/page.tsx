@@ -2,10 +2,8 @@ import { prisma } from "@/lib/prisma";
 import AdSlot from "@/components/AdSlot";
 import ListingActions from "@/components/ListingActions";
 import { notFound } from "next/navigation";
-
-function formatPrice(price: number, currency: string) {
-  return new Intl.NumberFormat("ru-RU").format(price) + " " + currency;
-}
+import { getServerDictionary } from "@/lib/i18n/server";
+import { localeMeta } from "@/lib/i18n/config";
 
 export default async function ListingPage({
   params,
@@ -13,12 +11,20 @@ export default async function ListingPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const listing = await prisma.listing.findUnique({
-    where: { id },
-    include: { category: true },
-  });
+  const [listing, { locale, dict }] = await Promise.all([
+    prisma.listing.findUnique({
+      where: { id },
+      include: { category: true },
+    }),
+    getServerDictionary(),
+  ]);
 
   if (!listing) notFound();
+
+  const intl = localeMeta[locale].intl;
+  const price =
+    new Intl.NumberFormat(intl).format(listing.price) + " " + listing.currency;
+  const date = new Date(listing.createdAt).toLocaleDateString(intl);
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_260px]">
@@ -33,7 +39,7 @@ export default async function ListingPage({
             />
           ) : (
             <div className="flex h-full items-center justify-center text-zinc-400">
-              Нет фото
+              {dict.listingCard.noPhoto}
             </div>
           )}
         </div>
@@ -44,11 +50,10 @@ export default async function ListingPage({
             <ListingActions listingId={listing.id} />
           </div>
           <p className="mt-1 text-3xl font-extrabold text-emerald-700 dark:text-emerald-400">
-            {formatPrice(listing.price, listing.currency)}
+            {price}
           </p>
           <p className="mt-2 text-sm text-zinc-500">
-            {listing.location} · {listing.category.name} ·{" "}
-            {new Date(listing.createdAt).toLocaleDateString("ru-RU")}
+            {listing.location} · {listing.category.name} · {date}
           </p>
           <hr className="my-4 border-zinc-200 dark:border-zinc-800" />
           <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
@@ -63,10 +68,10 @@ export default async function ListingPage({
 
       <aside className="flex flex-col gap-4">
         <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm text-zinc-500">Продавец</p>
-          <p className="font-semibold">Частное лицо</p>
+          <p className="text-sm text-zinc-500">{dict.listingDetail.seller}</p>
+          <p className="font-semibold">{dict.listingDetail.privateSeller}</p>
           <button className="mt-3 w-full rounded-full bg-emerald-600 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-            Показать телефон
+            {dict.listingDetail.showPhone}
           </button>
         </div>
         <AdSlot position="SIDEBAR_RIGHT" limit={2} />
