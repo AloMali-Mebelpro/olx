@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdSlot from "@/components/AdSlot";
+import ListingActions from "@/components/ListingActions";
 import { notFound } from "next/navigation";
 
 function formatPrice(price: number, currency: string) {
@@ -38,7 +39,10 @@ export default async function ListingPage({
         </div>
 
         <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-          <h1 className="text-2xl font-bold">{listing.title}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-2xl font-bold">{listing.title}</h1>
+            <ListingActions listingId={listing.id} />
+          </div>
           <p className="mt-1 text-3xl font-extrabold text-emerald-700 dark:text-emerald-400">
             {formatPrice(listing.price, listing.currency)}
           </p>
