@@ -22,7 +22,7 @@ const vazirmatn = Vazirmatn({
 });
 
 export const metadata: Metadata = {
-  title: "HinOi — доска объявлений",
+  title: "Tolibanx — доска объявлений",
   description: "Платформа для размещения объявлений о продаже товаров",
 };
 

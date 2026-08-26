@@ -13,7 +13,7 @@ export default async function Header() {
           className="flex items-center gap-1 text-2xl font-extrabold tracking-tight text-emerald-600"
         >
           <span className="rounded-md bg-emerald-600 px-2 py-1 text-white">
-            Hi
+            T
           </span>
           <span>{dict.brand}</span>
         </Link>

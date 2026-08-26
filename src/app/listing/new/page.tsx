@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/lib/i18n/client";
+import MapPicker from "@/components/MapPicker";
 
 type Category = { id: string; name: string; icon: string | null };
 
@@ -12,6 +13,7 @@ export default function NewListingPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
@@ -21,7 +23,32 @@ export default function NewListingPage() {
     location: "",
     imageUrl: "",
     categoryId: "",
+    lat: null as number | null,
+    lng: null as number | null,
   });
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    const body = new FormData();
+    body.append("file", file);
+
+    const res = await fetch("/api/upload", { method: "POST", body });
+    const data = await res.json().catch(() => ({}));
+
+    setUploading(false);
+
+    if (!res.ok) {
+      setError(data.error || "Не удалось загрузить фото");
+      return;
+    }
+
+    setForm((f) => ({ ...f, imageUrl: data.url }));
+  }
 
   useEffect(() => {
     fetch("/api/categories")
@@ -134,14 +161,35 @@ export default function NewListingPage() {
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          {dict.newListing.imageUrl}
-          <input
-            className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
-            placeholder="https://..."
-            value={form.imageUrl}
-            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+        <div className="flex flex-col gap-1 text-sm">
+          Адрес на карте (необязательно)
+          <MapPicker
+            value={
+              form.lat != null && form.lng != null
+                ? { lat: form.lat, lng: form.lng }
+                : null
+            }
+            onChange={({ lat, lng }) => setForm((f) => ({ ...f, lat, lng }))}
           />
+        </div>
+
+        <label className="flex flex-col gap-1 text-sm">
+          Фото объявления
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            onChange={handleFileChange}
+          />
+          {uploading && <span className="text-xs text-zinc-500">Загрузка...</span>}
+          {form.imageUrl && !uploading && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={form.imageUrl}
+              alt="Предпросмотр"
+              className="mt-2 h-32 w-32 rounded object-cover"
+            />
+          )}
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
@@ -159,7 +207,7 @@ export default function NewListingPage() {
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || uploading}
           className="rounded-full bg-emerald-600 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
         >
           {submitting ? dict.newListing.submitting : dict.newListing.submit}

@@ -2,7 +2,7 @@ import type { Locale } from "./config";
 
 export const dictionaries = {
   prs: {
-    brand: "HinOi",
+    brand: "Tolibanx",
     header: {
       searchPlaceholder: "اعلان مورد نظر خود را جستجو کنید...",
       searchButton: "جستجو",
@@ -83,12 +83,12 @@ export const dictionaries = {
       },
     },
     footer: {
-      copyright: "HinOi. یک پروژه آموزشی.",
+      copyright: "Tolibanx. یک پروژه آموزشی.",
       adminLink: "مدیریت تبلیغات",
     },
   },
   ru: {
-    brand: "HinOi",
+    brand: "Tolibanx",
     header: {
       searchPlaceholder: "Найти объявление...",
       searchButton: "Искать",
@@ -169,12 +169,12 @@ export const dictionaries = {
       },
     },
     footer: {
-      copyright: "HinOi. Учебный проект.",
+      copyright: "Tolibanx. Учебный проект.",
       adminLink: "Управление рекламой",
     },
   },
   en: {
-    brand: "HinOi",
+    brand: "Tolibanx",
     header: {
       searchPlaceholder: "Search listings...",
       searchButton: "Search",
@@ -255,7 +255,7 @@ export const dictionaries = {
       },
     },
     footer: {
-      copyright: "HinOi. A learning project.",
+      copyright: "Tolibanx. A learning project.",
       adminLink: "Ad management",
     },
   },

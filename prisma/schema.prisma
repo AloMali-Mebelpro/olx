@@ -22,13 +22,37 @@ model Listing {
   price       Int
   currency    String   @default("USD")
   location    String
+  lat         Float?
+  lng         Float?
   imageUrl    String?
   isPromoted  Boolean  @default(false)
+  promotedUntil DateTime?
+  promotionAmount Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  category   Category @relation(fields: [categoryId], references: [id])
+  category   Category  @relation(fields: [categoryId], references: [id])
   categoryId String
+  payments   Payment[]
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  listing           Listing       @relation(fields: [listingId], references: [id])
+  listingId         String
+  planId            String
+  amount            Int
+  currency          String        @default("usd")
+  status            PaymentStatus @default(PENDING)
+  stripeSessionId   String        @unique
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 enum AdPosition {

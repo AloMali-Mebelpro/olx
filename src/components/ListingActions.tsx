@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useLocale } from "@/lib/i18n/client";
@@ -30,6 +31,12 @@ export default function ListingActions({ listingId }: { listingId: string }) {
   return (
     <div className="flex items-center gap-2">
       <FavoriteButton listingId={listingId} />
+      <Link
+        href={`/listing/${listingId}/promote`}
+        className="rounded-full border border-amber-400 px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-950"
+      >
+        🔝 Поднять в топ
+      </Link>
       <button
         type="button"
         onClick={handleDelete}
